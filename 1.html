@@ -1,0 +1,377 @@
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+
+<link rel="stylesheet" href="bootstrap.min.css">
+<link href="app.min.css" rel="stylesheet" type="text/css" id="app-style"/>
+
+<body  data-layout-color="dark" data-layout-mode="fluid" >
+
+  <div class="container-fluid">
+      <div class="row">
+        <div class="col-md-12">
+            <h2 class="page-title">Sample Charts</h2>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+        <div class="card">
+          <div id="pieChart" style="height: 360px; width: 100%;"></div>
+        </div>
+        </div>
+
+
+        <div class="col-md-6">
+        <div class="card">
+          <div id="columnChart" style="height: 360px; width: 100%;"></div>
+        </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+        <div class="card">
+          <div id="severityChart" style="height: 360px; width: 100%;"></div>
+        </div>
+        </div>
+
+
+
+        <div class="col-md-6">
+        <div class="card">
+          <div id="xxxChart" style="height: 360px; width: 100%;"></div>
+        </div>
+        </div>
+      </div>
+
+  </div>
+
+<script src="bootstrap.min.js"></script>
+<script src="canvasjs.min.js"></script>
+
+
+
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script type="text/javascript">
+
+
+
+/*
+Colors
+*/
+var purple = '#780000';
+var red = '#dc0000';
+var orange = '#ff9900';
+var yellow = '#fdc500';
+var blue = '#3366cc';
+var green = '#109618';
+
+
+	function getChartData(chartType){
+		rawData = JSON.parse('{"Critical":1, "High":2, "Medium":3, "Low":4, "Info":5}');
+                    //alert(rawData);
+		drawChart(rawData, chartType);
+                return;
+		xmlhttp=new XMLHttpRequest();
+		xmlhttp.onreadystatechange = function() {
+			if (this.readyState == 4 && this.status == 200) {
+				rawData = JSON.parse(this.responseText);
+				drawChart(rawData, chartType);
+			}
+		};
+
+		switch(chartType) {
+			case "severityChart":
+				xmlhttp.open("GET", "/1.json", true);
+			break;
+			case "xxxChart":
+				xmlhttp.open("GET", "/2.json", true);
+			break;
+			case "sensorChart":
+				xmlhttp.open("GET", "/3.json", true);
+			break;
+		}
+		xmlhttp.send();  
+	}
+
+
+
+
+
+	function drawChart(rawData, chartType) {
+
+		switch(chartType) {
+
+			case "severityChart":
+
+				var options = {
+					title: 'Events by Severity',
+					colors: [purple, red, orange, yellow, blue],
+                                        backgroundColor: 'transparent',			
+                                        is3D: true,
+                                };
+
+				var data = new google.visualization.DataTable();
+
+				data.addColumn('string', 'Severity');
+				data.addColumn('number', 'Number');
+				data.addRow(['Critical', rawData.Critical]);
+				data.addRow(['High', rawData.High]);
+				data.addRow(['Medium', rawData.Medium]);
+				data.addRow(['Low', rawData.Low]);
+				data.addRow(['Info', rawData.Info]);
+
+				var severityChart = new google.visualization.PieChart(document.getElementById(chartType));
+
+				function selectHandler(){
+					var selectedItem = severityChart.getSelection()[0];
+
+					if (selectedItem){ 
+						var topping = data.getValue(selectedItem.row, 0);
+						window.location = "/investigation/alert/list/?severity="+topping;
+					}
+				} 
+
+				google.visualization.events.addListener(severityChart, 'select', selectHandler);    
+				severityChart.draw(data, options);
+
+			break;
+
+
+
+			case "xxxChart":
+
+				var options = {
+					title: 'Incidents by Severity',
+					colors: ['#780000', '#dc0000', '#ff9900', '#fdc500', '3366cc'], 
+                                        backgroundColor: 'transparent',			
+                                        is3D: true,
+                                };
+				var data = new google.visualization.DataTable();
+
+				data.addColumn('string', 'Severity');
+				data.addColumn('number', 'Number');
+				data.addRow(['Critical', rawData.Critical]);
+				data.addRow(['High', rawData.High]);
+				data.addRow(['Medium', rawData.Medium]);
+				data.addRow(['Low', rawData.Low]);
+				data.addRow(['Info', rawData.Info]);
+
+				var xxxChart = new google.visualization.PieChart(document.getElementById(chartType));
+
+				function xxxselectHandler(){
+					var selectedItem = xxxChart.getSelection()[0];
+
+					if (selectedItem){ 
+						var topping = data.getValue(selectedItem.row, 0);
+						window.location = "/investigation/incident/list/?severity="+topping;
+						//alert('The user selected ' + topping);
+					}
+				} 
+
+				google.visualization.events.addListener(xxxChart, 'select', xxxselectHandler);
+				xxxChart.draw(data, options);
+
+			break;
+
+
+
+
+			case "sensorChart":
+
+				var options = {
+					title: 'Sensor Status',
+					colors: [green, orange, red], 
+                                        backgroundColor: 'transparent',			
+                                        is3D: true,
+                                };
+
+				var data = new google.visualization.DataTable();
+
+				data.addColumn('string', 'Severity');
+				data.addColumn('number', 'Number');
+				data.addRow(['Live', rawData.sync_lt_5m]);
+				data.addRow(['Sync > 5 Min.', rawData.sync_gt_5m]);
+				data.addRow(['Sync > 1 Day.', rawData.sync_gt_1d]);
+
+				var sensorChart = new google.visualization.PieChart(document.getElementById(chartType));
+
+				function sensorSelectHandler(){
+					var selectedItem = sensorChart.getSelection()[0];
+
+					if (selectedItem){ 
+						var topping = data.getValue(selectedItem.row, 0);
+						window.location = "/sensor/list/";
+					}
+				} 
+
+				google.visualization.events.addListener(sensorChart, 'select', sensorSelectHandler);
+				sensorChart.draw(data, options);
+
+			break;
+		}
+            
+	}
+
+	google.charts.load('current', {'packages':['corechart']});
+	google.charts.setOnLoadCallback(function() {getChartData('severityChart')});
+	google.charts.setOnLoadCallback(function() {getChartData('xxxChart')});
+	//google.charts.setOnLoadCallback(function() {getChartData('sensorChart')});
+
+
+</script>
+
+
+
+
+<script id="rendered-js">
+var pieChartValues = [{
+  y: 69.16,
+  exploded: true,
+  indexLabel: "Hello",
+  color: "#1f77b4" },
+{
+  y: 21.8,
+  indexLabel: "Hi",
+  color: "#ff7f0e" },
+{
+  y: 21.45,
+  indexLabel: "pk",
+  color: " #ffbb78" },
+{
+  y: 5.56,
+  indexLabel: "one",
+  color: "#d62728" },
+{
+  y: 5.38,
+  indexLabel: "two",
+  color: "#98df8a" },
+{
+  y: 3.73,
+  indexLabel: "three",
+  color: "#bcbd22" },
+{
+  y: 2.92,
+  indexLabel: "four",
+  color: "#f7b6d2" }];
+
+renderPieChart(pieChartValues);
+
+function renderPieChart(values) {
+
+  var chart = new CanvasJS.Chart("pieChart", {
+    backgroundColor: "",        //white
+    colorSet: "colorSet2",
+
+    title: {
+      text: "Pie Chart",
+      fontColor: "#aab8c5",
+      fontFamily: "Verdana",
+      fontSize: 15,
+      fontWeight: "normal" },
+
+    animationEnabled: true,
+    data: [{
+      indexLabelFontSize: 15,
+      indexLabelFontFamily: "Monospace",
+      indexLabelFontColor: "darkgrey",
+      indexLabelLineColor: "darkgrey",
+      indexLabelPlacement: "outside",
+      type: "pie",
+      showInLegend: false,
+      //toolTipContent: "<strong>#percent%</strong>",
+      dataPoints: values }] });
+
+
+  chart.render();
+
+}
+
+
+
+
+function onClick(e){
+		alert(  e.dataSeries.type+ ", dataPoint { x:" + e.dataPoint.label + ", y: "+ e.dataPoint.y + " }" );   
+}
+
+var columnChartValues = [{
+  y: 686.04,
+  label: "one",
+  color: "#1f77b4" , click: onClick },
+{
+  y: 381.84,
+  label: "two",
+  color: "#ff7f0e" },
+{
+  y: 375.76,
+  label: "three",
+  color: " #ffbb78" },
+{
+  y: 97.48,
+  label: "four",
+  color: "#d62728" },
+{
+  y: 94.2,
+  label: "five",
+  color: "#98df8a" },
+{
+  y: 65.28,
+  label: "Hi",
+  color: "#bcbd22" },
+{
+  y: 51.2,
+  label: "Hello",
+  color: "#f7b6d2" }];
+
+renderColumnChart(columnChartValues);
+
+function renderColumnChart(values) {
+
+  var chart = new CanvasJS.Chart("columnChart", {
+    backgroundColor: "",        //white
+    colorSet: "colorSet3",
+
+    title: {
+      text: "Column Chart",
+      fontColor: "#aab8c5",
+      fontFamily: "Verdana",
+      fontSize: 15,
+      fontWeight: "normal" },
+
+    animationEnabled: true,
+    legend: {
+      verticalAlign: "bottom",
+      horizontalAlign: "center" },
+
+    theme: "theme2",
+    data: [{
+      indexLabelFontSize: 55,
+      indexLabelFontFamily: "Monospace",
+      indexLabelFontColor: "darkgrey",
+      indexLabelLineColor: "darkgrey",
+      indexLabelPlacement: "outside",
+      type: "column",
+      showInLegend: false,
+      legendMarkerColor: "grey",
+      dataPoints: values }] });
+
+
+
+
+  chart.render();
+
+
+
+  }
+</script>
+
+
+
+
+  
+
+
+
+
+ 
+</body></html>

@@ -1,0 +1,182 @@
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+          <div id="severityChart" style="width: 900px; height: 500px;" ></div>
+
+
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script type="text/javascript">
+
+
+
+/*
+Colors
+*/
+var purple = '#780000';
+var red = '#dc0000';
+var orange = '#ff9900';
+var yellow = '#fdc500';
+var blue = '#3366cc';
+var green = '#109618';
+
+
+	function getChartData(chartType){
+		rawData = JSON.parse('{"Critical":1, "High":2, "Medium":3, "Low":4, "Info":5}');
+                    //alert(rawData);
+		drawChart(rawData, chartType);
+                return;
+		xmlhttp=new XMLHttpRequest();
+		xmlhttp.onreadystatechange = function() {
+			if (this.readyState == 4 && this.status == 200) {
+				rawData = JSON.parse(this.responseText);
+				drawChart(rawData, chartType);
+			}
+		};
+
+		switch(chartType) {
+			case "severityChart":
+				xmlhttp.open("GET", "/1.json", true);
+			break;
+			case "xxxChart":
+				xmlhttp.open("GET", "/2.json", true);
+			break;
+			case "sensorChart":
+				xmlhttp.open("GET", "/3.json", true);
+			break;
+		}
+		xmlhttp.send();  
+	}
+
+
+
+
+
+	function drawChart(rawData, chartType) {
+
+		switch(chartType) {
+
+			case "severityChart":
+
+				var options = {
+					title: 'Events by Severity',
+					colors: [purple, red, orange, yellow, blue] 
+				};
+
+				var data = new google.visualization.DataTable();
+
+				data.addColumn('string', 'Severity');
+				data.addColumn('number', 'Number');
+				data.addRow(['Critical', rawData.Critical]);
+				data.addRow(['High', rawData.High]);
+				data.addRow(['Medium', rawData.Medium]);
+				data.addRow(['Low', rawData.Low]);
+				data.addRow(['Info', rawData.Info]);
+
+				var severityChart = new google.visualization.PieChart(document.getElementById(chartType));
+
+				function selectHandler(){
+					var selectedItem = severityChart.getSelection()[0];
+
+					if (selectedItem){ 
+						var topping = data.getValue(selectedItem.row, 0);
+						window.location = "/investigation/alert/list/?severity="+topping;
+					}
+				} 
+
+				google.visualization.events.addListener(severityChart, 'select', selectHandler);    
+				severityChart.draw(data, options);
+
+			break;
+
+
+
+			case "xxxChart":
+
+				var options = {
+					title: 'Incidents by Severity',
+					colors: ['#780000', '#dc0000', '#ff9900', '#fdc500', '3366cc'] 
+				};
+
+				var data = new google.visualization.DataTable();
+
+				data.addColumn('string', 'Severity');
+				data.addColumn('number', 'Number');
+				data.addRow(['Critical', rawData.Critical]);
+				data.addRow(['High', rawData.High]);
+				data.addRow(['Medium', rawData.Medium]);
+				data.addRow(['Low', rawData.Low]);
+				data.addRow(['Info', rawData.Info]);
+
+				var xxxChart = new google.visualization.PieChart(document.getElementById(chartType));
+
+				function xxxselectHandler(){
+					var selectedItem = xxxChart.getSelection()[0];
+
+					if (selectedItem){ 
+						var topping = data.getValue(selectedItem.row, 0);
+						window.location = "/investigation/incident/list/?severity="+topping;
+						//alert('The user selected ' + topping);
+					}
+				} 
+
+				google.visualization.events.addListener(xxxChart, 'select', xxxselectHandler);
+				xxxChart.draw(data, options);
+
+			break;
+
+
+
+
+			case "sensorChart":
+
+				var options = {
+					title: 'Sensor Status',
+					colors: [green, orange, red] 
+				};
+
+				var data = new google.visualization.DataTable();
+
+				data.addColumn('string', 'Severity');
+				data.addColumn('number', 'Number');
+				data.addRow(['Live', rawData.sync_lt_5m]);
+				data.addRow(['Sync > 5 Min.', rawData.sync_gt_5m]);
+				data.addRow(['Sync > 1 Day.', rawData.sync_gt_1d]);
+
+				var sensorChart = new google.visualization.PieChart(document.getElementById(chartType));
+
+				function sensorSelectHandler(){
+					var selectedItem = sensorChart.getSelection()[0];
+
+					if (selectedItem){ 
+						var topping = data.getValue(selectedItem.row, 0);
+						window.location = "/sensor/list/";
+					}
+				} 
+
+				google.visualization.events.addListener(sensorChart, 'select', sensorSelectHandler);
+				sensorChart.draw(data, options);
+
+			break;
+		}
+            
+	}
+
+	google.charts.load('current', {'packages':['corechart']});
+	google.charts.setOnLoadCallback(function() {getChartData('severityChart')});
+	//google.charts.setOnLoadCallback(function() {getChartData('xxxChart')});
+	//google.charts.setOnLoadCallback(function() {getChartData('sensorChart')});
+
+
+</script>
+
+
+
+
+
+
+  
+
+
+
+
+ 
+</body></html>

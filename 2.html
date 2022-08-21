@@ -1,0 +1,114 @@
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+
+<link rel="stylesheet" href="bootstrap.min.css">
+<link href="app.min.css" rel="stylesheet" type="text/css" id="app-style"/>
+
+<body  data-layout-color="dark" data-layout-mode="fluid" >
+
+  <div class="container-fluid">
+      <div class="row">
+        <div class="col-md-12">
+            <h2 class="page-title">Sample Charts</h2>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+        <div class="card">
+          <div id="chartContainer" style="height: 360px; width: 100%;"></div>        
+        </div>
+        </div>
+
+
+        <div class="col-md-6">
+        <div class="card">
+          <div id="columnChart" style="height: 360px; width: 100%;"></div>
+        </div>
+        </div>
+      </div>
+
+     
+  </div>
+
+
+<script src="canvasjs.min.js"></script>
+
+
+<script>
+
+window.onload = function() {
+
+    CanvasJS.addColorSet("mColorSet1",
+         [//colorSet Array
+         "#1f77b4",
+         "#ff7f0e",
+         "#ffbb78",
+         "#d62728",
+         "#98df8a",
+         "#bcbd22",
+         "#f7b6d2",
+         "#23BFAA",
+         "#FAA586",
+         "#EB8CC6",
+         ]
+    );
+
+
+
+    var chart = new CanvasJS.Chart("chartContainer", {
+            backgroundColor: "",        //white
+            colorSet: "mColorSet1",
+            //theme: "dark1",
+            //animationEnabled: true,
+
+            title: {
+                    text: "Desktop Search Engine Market Share - 2016",
+                    fontColor: "#aab8c5",
+                    fontFamily: "Verdana",
+                    fontSize: 15,
+                    fontWeight: "normal" 
+            },
+
+            data: [{
+                    type: "pie",
+                    startAngle: 240,
+                    indexLabelFontSize: 15,
+                    indexLabelFontFamily: "Monospace",
+                    indexLabelFontColor: "darkgrey",
+                    //indexLabelLineColor: "darkgrey",
+                    indexLabelPlacement: "outside",
+                    showInLegend: false,
+                    //yValueFormatString: "##0.00\"%\"",
+                    indexLabel: "{label}",
+                    //indexLabel: "{label} {y} #percent%",
+                    //percentFormatString: "#0.##",
+                    toolTipContent: "{label} <br> {y} (#percent%)",
+                    dataPoints: [
+                            {y: 69.45, label: "Google", click: onClick },
+                            {y: 17.31, label: "Bing", click: onClick },
+                            {y: 7.06, label: "Baidu", click: onClick },
+                            {y: 24.91, label: "Yahoo", click: onClick },
+                            {y: 15.26, label: "Others", click: onClick }
+                    ]
+            }]
+    });
+
+    chart.render();
+
+    function onClick(e){
+        //alert(  e.dataSeries.type+ ", dataPoint { x:" + e.dataPoint.label + ", y: "+ e.dataPoint.y + " }" );   
+        alert(e.dataPoint.label);   
+    }
+
+}
+</script>
+
+
+  
+
+
+
+
+ 
+</body></html>
